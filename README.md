@@ -26,22 +26,17 @@ El agente y los archivos permanecen en el PC. El teléfono solo funciona como cl
 - El repositorio remoto estaba vacío al comenzar este trabajo.
 - Todavía no se han guardado credenciales, tokens ni archivos de configuración secretos en este repositorio.
 
-## Sesión local de Zellij
+## Relay SSH
 
-Desde PowerShell, dentro del checkout del proyecto:
+El relay se inicia desde `scripts/start-relay.ps1`. La ventana de PowerShell debe permanecer abierta mientras se necesite acceso remoto.
 
-```powershell
-zellij --session proyecto
-codex
+Desde Termux:
+
+```bash
+ssh -J serveo.net adaredu@adardev-orca-20260928
 ```
 
-Para volver a una sesión existente:
-
-```powershell
-zellij attach proyecto
-```
-
-Una sesión de Zellij permanece disponible aunque se cierre el terminal cliente.
+Después de entrar a Windows se puede ejecutar directamente `codex` desde el directorio del proyecto.
 
 ## Acceso desde Termux
 
