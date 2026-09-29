@@ -34,6 +34,10 @@ Desde Termux:
 ssh -J serveo.net adaredu@adardev-orca-20260928-2
 ```
 
+El acceso directo `Iniciar relay SSH` usa siempre ese mismo alias y reintenta la
+conexion automaticamente si Serveo corta el tunel. No abras dos accesos directos
+al mismo tiempo: el script bloquea los duplicados para evitar conflictos de puerto.
+
 Después de entrar a Windows se puede ejecutar directamente `codex` desde el directorio del proyecto.
 
 ## Acceso desde Termux
