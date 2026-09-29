@@ -7,12 +7,12 @@ Este repositorio documenta el entorno para ejecutar agentes de código en Window
 ```text
 Termux (Android)
     |
-    | SSH + cloudflared / Cloudflare Access
+    | SSH through a reverse relay
     v
 Windows + OpenSSH Server
     |
     v
-Zellij -> Codex / Claude Code / OpenCode
+Windows + OpenSSH Server -> Codex / Claude Code / OpenCode
 ```
 
 El agente y los archivos permanecen en el PC. El teléfono solo funciona como cliente remoto.
@@ -20,9 +20,7 @@ El agente y los archivos permanecen en el PC. El teléfono solo funciona como cl
 ## Estado actual
 
 - OpenSSH Server está instalado y ejecutándose como servicio automático.
-- Zellij `0.45.1` está instalado en el perfil del usuario.
-- Cloudflared `2026.9.3` está instalado en el perfil del usuario.
-- El servicio `cloudflared` está instalado y ejecutándose automáticamente en Windows.
+- El acceso remoto usa OpenSSH y un reverse relay SSH.
 - El repositorio remoto estaba vacío al comenzar este trabajo.
 - Todavía no se han guardado credenciales, tokens ni archivos de configuración secretos en este repositorio.
 
@@ -63,31 +61,10 @@ ssh -J serveo.net WINDOWS_USER@ALIAS
 
 El alias gratuito puede cambiar y el proceso del relay debe permanecer ejecutándose en Windows. Para uso permanente conviene un VPS propio o un servicio con endpoint persistente.
 
-Como alternativa, si se usa un servicio compatible con `cloudflared`, el archivo `~/.ssh/config` del teléfono puede tener una entrada equivalente a:
-
-```ssh
-Host mi-pc
-    HostName ssh.example.com
-    User WINDOWS_USER
-    ProxyCommand cloudflared access ssh --hostname %h
-```
-
-Conectar:
-
-```bash
-ssh mi-pc
-```
-
-Después de entrar a Windows, recuperar la sesión:
-
-```powershell
-zellij attach proyecto
-```
-
 ## Requisitos pendientes
 
 1. Crear una clave SSH en Termux y autorizar únicamente su clave pública en Windows.
 2. Probar la conexión desde datos móviles y desde una red Wi-Fi externa.
 3. Decidir si el relay temporal es suficiente o si se usará un VPS propio para tener un endpoint permanente.
 
-No se deben subir al repositorio las credenciales de Cloudflare, tokens de túnel, claves privadas ni archivos `.env`.
+No se deben subir al repositorio tokens del relay, claves privadas ni archivos `.env`.
