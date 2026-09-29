@@ -45,14 +45,30 @@ Una sesión de Zellij permanece disponible aunque se cierre el terminal cliente.
 
 ## Acceso desde Termux
 
+El transporte remoto elegido para este entorno es un reverse relay SSH. El PC mantiene una conexión saliente al relay y el teléfono se conecta con SSH; no se necesita Tailscale ni abrir puertos en el router.
+
 Instalar en Termux:
 
 ```bash
 pkg update
-pkg install openssh cloudflared
+pkg install openssh
 ```
 
-La conexión remota se configurará mediante un hostname protegido por Cloudflare Access. El archivo `~/.ssh/config` del teléfono tendrá una entrada equivalente a:
+Para una prueba con un relay gratuito, iniciar en Windows una conexión equivalente a:
+
+```powershell
+ssh -NT -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R "ALIAS:22:127.0.0.1:22" serveo.net
+```
+
+El relay genera un alias temporal. Desde Termux se usa como salto SSH:
+
+```bash
+ssh -J serveo.net WINDOWS_USER@ALIAS
+```
+
+El alias gratuito puede cambiar y el proceso del relay debe permanecer ejecutándose en Windows. Para uso permanente conviene un VPS propio o un servicio con endpoint persistente.
+
+Como alternativa, si se usa un servicio compatible con `cloudflared`, el archivo `~/.ssh/config` del teléfono puede tener una entrada equivalente a:
 
 ```ssh
 Host mi-pc
@@ -75,10 +91,8 @@ zellij attach proyecto
 
 ## Requisitos pendientes
 
-1. Añadir una ruta publicada al túnel: `ssh://localhost:22`.
-2. Crear una aplicación Cloudflare Access para el hostname SSH.
-3. Rotar el token del conector si fue expuesto durante la instalación.
-4. Crear una clave SSH para Termux y autorizar únicamente su clave pública en Windows.
-5. Probar la conexión desde datos móviles y desde una red Wi-Fi externa.
+1. Crear una clave SSH en Termux y autorizar únicamente su clave pública en Windows.
+2. Probar la conexión desde datos móviles y desde una red Wi-Fi externa.
+3. Decidir si el relay temporal es suficiente o si se usará un VPS propio para tener un endpoint permanente.
 
 No se deben subir al repositorio las credenciales de Cloudflare, tokens de túnel, claves privadas ni archivos `.env`.
