@@ -31,7 +31,7 @@ El relay se inicia desde `scripts/start-relay.ps1`. La ventana de PowerShell deb
 Desde Termux:
 
 ```bash
-ssh -J serveo.net adaredu@adardev-orca-20260928
+ssh -J serveo.net adaredu@adardev-orca-20260928-2
 ```
 
 Después de entrar a Windows se puede ejecutar directamente `codex` desde el directorio del proyecto.

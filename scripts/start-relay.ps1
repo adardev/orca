@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $ssh = 'C:\Program Files\Git\usr\bin\ssh.exe'
-$alias = 'adardev-orca-20260928'
+$alias = 'adardev-orca-20260928-2'
 
 if (-not (Test-Path -LiteralPath $ssh)) {
     throw "No se encontró OpenSSH en $ssh"
