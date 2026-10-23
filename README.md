@@ -1,74 +1,28 @@
-# Acceso remoto a agentes por terminal
+# Acceso SSH al servidor Tekkure por Serveo
 
-Este repositorio documenta el entorno para ejecutar agentes de código en Windows y controlarlos desde un teléfono Android usando Termux.
+Este repositorio contiene el relay que corre en la PC Windows de la LAN del servidor Tekkure. La PC mantiene una conexión SSH saliente a Serveo y reenvía el puerto remoto del alias al SSH del servidor (`192.168.0.127:22`). El servidor no requiere instalar Serveo ni abrir el puerto 22 en el router.
 
-## Arquitectura
+## Iniciar el relay
 
-```text
-Termux (Android)
-    |
-    | SSH through a reverse relay
-    v
-Windows + OpenSSH Server
-    |
-    v
-Windows + OpenSSH Server -> Codex / Claude Code / OpenCode
-```
+Abre el acceso directo `Iniciar relay SSH`, que ejecuta `scripts/start-relay.ps1`. La PC debe permanecer encendida, conectada a la misma LAN del servidor y con el relay activo. El script reintenta automáticamente si la conexión a Serveo se interrumpe y evita abrir dos relays con el mismo alias.
 
-El agente y los archivos permanecen en el PC. El teléfono solo funciona como cliente remoto.
+La dirección `192.168.0.127` se asigna por DHCP. Reserva esa dirección para el servidor en el router; si cambia, actualiza el destino `-R` del script y sincroniza la documentación del repositorio `Tekkure-Systems/tekkure-server`.
 
-## Estado actual
+## Conectarse desde otra red
 
-- OpenSSH Server está instalado y ejecutándose como servicio automático.
-- El acceso remoto usa OpenSSH y un reverse relay SSH.
-- El repositorio remoto estaba vacío al comenzar este trabajo.
-- Todavía no se han guardado credenciales, tokens ni archivos de configuración secretos en este repositorio.
-
-## Relay SSH
-
-El relay se inicia desde `scripts/start-relay.ps1`. La ventana de PowerShell debe permanecer abierta mientras se necesite acceso remoto.
-
-Desde Termux:
+Desde un cliente con OpenSSH:
 
 ```bash
-ssh -J serveo.net adaredu@adardev-orca-20260928-2
+ssh -J serveo.net tekkure@adardev-orca-20261020-f9c7e2
 ```
 
-El acceso directo `Iniciar relay SSH` usa siempre ese mismo alias y reintenta la
-conexion automaticamente si Serveo corta el tunel. No abras dos accesos directos
-al mismo tiempo: el script bloquea los duplicados para evitar conflictos de puerto.
+En la laptop configurada, `ssh tekkure` usa el alias local de `~/.ssh/config`, el salto por Serveo y la llave cliente `~/.ssh/id_ed25519_tekkure_auto`. La clave pública correspondiente debe estar autorizada en `/home/tekkure/.ssh/authorized_keys` del servidor.
 
-Después de entrar a Windows se puede ejecutar directamente `codex` desde el directorio del proyecto.
+Serveo solo transporta la conexión. Conserva la verificación de `known_hosts` y la autenticación del usuario `tekkure`. La huella ED25519 verificada del servidor es `SHA256:9xfB9e3PIzVMIuUWaPOGxSfMWVvYikQxiMmTCoG5JCs`. El alias es un nombre de ruta, no una credencial.
 
-## Acceso desde Termux
+## Claves locales
 
-El transporte remoto elegido para este entorno es un reverse relay SSH. El PC mantiene una conexión saliente al relay y el teléfono se conecta con SSH; no se necesita Tailscale ni abrir puertos en el router.
+- `~/.ssh/serveo_adardev_orca_ed25519`: autentica la PC relay ante Serveo.
+- `~/.ssh/id_ed25519_tekkure_auto`: autentica la laptop cliente ante el servidor Tekkure.
 
-Instalar en Termux:
-
-```bash
-pkg update
-pkg install openssh
-```
-
-Para una prueba con un relay gratuito, iniciar en Windows una conexión equivalente a:
-
-```powershell
-ssh -NT -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R "ALIAS:22:127.0.0.1:22" serveo.net
-```
-
-El relay genera un alias temporal. Desde Termux se usa como salto SSH:
-
-```bash
-ssh -J serveo.net WINDOWS_USER@ALIAS
-```
-
-El alias gratuito puede cambiar y el proceso del relay debe permanecer ejecutándose en Windows. Para uso permanente conviene un VPS propio o un servicio con endpoint persistente.
-
-## Requisitos pendientes
-
-1. Crear una clave SSH en Termux y autorizar únicamente su clave pública en Windows.
-2. Probar la conexión desde datos móviles y desde una red Wi-Fi externa.
-3. Decidir si el relay temporal es suficiente o si se usará un VPS propio para tener un endpoint permanente.
-
-No se deben subir al repositorio tokens del relay, claves privadas ni archivos `.env`.
+Las claves privadas, contraseñas y tokens nunca se guardan en Git. La configuración SSH del cliente tampoco se versiona porque contiene rutas locales.
